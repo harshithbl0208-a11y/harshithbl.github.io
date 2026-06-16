@@ -1,0 +1,1010 @@
+{
+  "name": "Student Enrollment Automation-Certisured",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Student Enrollment Form",
+        "formDescription": "Onboarding form that collects personal details, fee information, and documents.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "fieldName": "name",
+              "placeholder": "Enter your Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "fieldName": "email",
+              "placeholder": "Enter your Email ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone",
+              "fieldType": "number",
+              "fieldName": "phone",
+              "placeholder": "Enter your Phone Number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Address",
+              "fieldType": "textarea",
+              "fieldName": "address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Degree",
+              "fieldType": "dropdown",
+              "fieldName": "degree",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "BCA"
+                  },
+                  {
+                    "option": "BSc"
+                  },
+                  {
+                    "option": "BE"
+                  },
+                  {
+                    "option": "Btech"
+                  },
+                  {
+                    "option": "BCom"
+                  },
+                  {
+                    "option": "MCA"
+                  },
+                  {
+                    "option": "Other"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Course",
+              "fieldType": "checkbox",
+              "fieldName": "course",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Full Stack Data Analytics"
+                  },
+                  {
+                    "option": "Applied Business Analytics"
+                  },
+                  {
+                    "option": "Machine Learning & AI"
+                  },
+                  {
+                    "option": "Full Stack Data Science"
+                  },
+                  {
+                    "option": "Python Programming"
+                  },
+                  {
+                    "option": "Power BI"
+                  },
+                  {
+                    "option": "Excel "
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Duration",
+              "fieldType": "number",
+              "fieldName": "duration",
+              "placeholder": "Enter the duration in months",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Start Date",
+              "fieldType": "date",
+              "fieldName": "start_date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Fee",
+              "fieldType": "number",
+              "fieldName": "fee",
+              "placeholder": "Enter the Full Fee",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Fee Mode",
+              "fieldType": "dropdown",
+              "fieldName": "fee_mode",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Full payment"
+                  },
+                  {
+                    "option": "EMI"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "EMI Months",
+              "fieldType": "number",
+              "fieldName": "emi_months"
+            },
+            {
+              "fieldLabel": "Photo",
+              "fieldType": "file",
+              "fieldName": "file1",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Valid ID Proof",
+              "fieldType": "file",
+              "fieldName": "file2",
+              "multipleFiles": false,
+              "acceptFileTypes": ".jpg , .png, .jpeg, .pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -1824,
+        208
+      ],
+      "id": "baf91bc7-5fa3-4909-8300-b46edba1adcd",
+      "name": "On form submission",
+      "webhookId": "3c25aff0-2975-4e6a-a222-65e2a3e7dbae"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get form submission directly from the Onform node\nconst formItems = $(\"On form submission\").all();\nconst formItem = formItems[0] || { json: {}, binary: {} };\nconst formData = formItem.json || {};\nconst binaryData = formItem.binary || {};\n\n// Get all existing rows from Google Sheets node\nconst sheetItems = $(\"Get row(s) in sheet\").all();\n\nconst currentYear = new Date().getFullYear();\nlet maxNumber = 0;\n\n// Find highest student_id for current year\nfor (const item of sheetItems) {\n  const json = item.json || {};\n\n  if (!json.student_id) continue;\n\n  const id = String(json.student_id).trim();\n  const match = id.match(/^CT(\\d{4})(\\d+)$/);\n\n  if (match) {\n    const idYear = Number(match[1]);\n    const idNumber = Number(match[2]);\n\n    if (idYear === currentYear && idNumber > maxNumber) {\n      maxNumber = idNumber;\n    }\n  }\n}\n\n// Generate next student ID\nconst nextNumber = maxNumber + 1;\nconst student_id = `CT${currentYear}${String(nextNumber).padStart(3, \"0\")}`;\n\n// EMI logic\nconst fee = Number(formData.fee || 0);\nconst mode = formData.fee_mode?.value || formData.fee_mode || \"Full payment\";\nconst months = Number(formData.emi_months || 0);\n\nlet emi_per_month = \"\";\nlet total_months = \"\";\nlet installment_details = \"\";\n\nif (mode === \"EMI\" && months > 0) {\n  emi_per_month = (fee / months).toFixed(2);\n  total_months = months;\n\n  const today = new Date();\n  const details = [];\n\n  for (let i = 0; i < months; i++) {\n    const d = new Date(\n      today.getFullYear(),\n      today.getMonth() + i,\n      today.getDate()\n    );\n\n    const date = d.toLocaleDateString(\"en-GB\");\n    details.push(`${i + 1}. ${date} : ${emi_per_month}`);\n  }\n\n  installment_details = details.join(\"\\n\");\n} else {\n  emi_per_month = \"Full Payment\";\n  total_months = 0;\n  installment_details = \"Full payment completed\";\n}\n\n// Return single final item\nreturn [\n  {\n    json: {\n      student_id,\n      ...formData,\n      emi_per_month,\n      total_months,\n      installment_details\n    },\n    binary: binaryData\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1088,
+        144
+      ],
+      "id": "97ff43df-ee43-4242-a4b3-022049339e71",
+      "name": "Code in JavaScript",
+      "executeOnce": false,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=file1",
+        "name": "=Student Photo",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$node[\"Create folder\"].json[\"id\"]}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e602e619-56a9-49c8-9f82-70e7d4af2026",
+      "name": "Upload file",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.name }}_{{ $json.student_id }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Ops_J2zBC5nDNoWLD8zHoUy5nEuZ-mDb",
+          "mode": "list",
+          "cachedResultName": "Enrollments",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Ops_J2zBC5nDNoWLD8zHoUy5nEuZ-mDb"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        208
+      ],
+      "id": "bc0884fe-6e5a-486f-9f40-514749003b86",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -272,
+        64
+      ],
+      "id": "9d07b8ee-6b22-46f4-a90c-e5ef2d479e1a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "file2",
+        "name": "=Student ID Proof",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$node[\"Create folder\"].json[\"id\"]}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        64,
+        160
+      ],
+      "id": "94be3ed9-3b8c-446e-a9e5-36339fab46f3",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1ngTg-dlmR72p5xwTfw1MkJ8nCIVZxh_FT_S9mizlBOs",
+          "mode": "id"
+        },
+        "name": "={{ $json.name }}_enrollment document",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1328,
+        624
+      ],
+      "id": "cb47fe9b-851c-4d0b-b2ee-f0464b61ebb5",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{name}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.name }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{phone}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.phone .toString()}}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{address}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.address }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{degree}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.degree }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{fee}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.fee.toString()}}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{fee_mode}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.fee_mode}}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{emi_per_month}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.emi_per_month }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{course}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.course.toString()}}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{duration}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.duration.toString() }} months",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{installment_details}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.installment_details }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{start_date}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.start_date }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{total_months}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.total_months.toString() }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{unique_id}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.student_id }}",
+              "matchCase": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        608
+      ],
+      "id": "5cc405f8-6b59-4409-80fd-e342fac017da",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "rGMsyleXzaeoIzYh",
+          "name": "Google Docs account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{$node[\"Copy file\"].json[\"id\"]}}"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -496,
+        464
+      ],
+      "id": "76ee5184-fd00-492b-9d79-f0e8a42c1be2",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "Enrollment Copy",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$node[\"Create folder\"].json[\"id\"]}}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        176,
+        432
+      ],
+      "id": "99bf801d-58f6-4a4f-b773-33a618698194",
+      "name": "Upload file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -160,
+        432
+      ],
+      "id": "7c0021b0-7062-4b22-8c5e-772776398dd6",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json.email }}",
+        "subject": "=Enrollment Confirmed - {{ $('Code in JavaScript').item.json.student_id }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width:600px; margin:auto; border:1px solid #eee; padding:20px;\">\n\n  <!-- Logo -->\n  <div style=\"text-align:center; margin-bottom:20px;\">\n    <img src=\"https://drive.google.com/uc?export=view&id=1jsax-xoHIpnQLk87lX6dYvTe9kPrRai4\" alt=\"Certisured Logo\" style=\"max-width:150px;\">\n  </div>\n\n  <!-- Title -->\n  <h2 style=\"color:#2c3e50; text-align:center;\">Enrollment Confirmation</h2>\n\n  <!-- Body -->\n  <p>Dear {{ $('Code in JavaScript').item.json.name }},</p>\n\n  <p>\n  We are pleased to inform you that your enrollment with <b>Certisured</b> has been successfully completed.\n  </p>\n\n  <hr>\n\n  <!-- Details -->\n  <p><b>Student ID:</b> {{ $('Code in JavaScript').item.json.student_id }}</p>\n  <p><b>Course:</b> {{ $('Code in JavaScript').item.json.course }}</p>\n  <p><b>Payment Mode:</b> {{ $('Code in JavaScript').item.json.fee_mode }}</p>\n  <p><b>EMI per month:</b> {{ $('Code in JavaScript').item.json.emi_per_month }}</p>\n\n  <hr>\n\n  <!-- Attachment Note -->\n  <p>\n  📄 Your official enrollment document is attached with this email.\n  </p>\n\n  <!-- Footer -->\n  <p>\n  Warm regards,<br><br>\n  <b>Team Certisured</b><br>\n  </p>\n\n  <hr>\n\n  <p style=\"font-size:12px; color:gray; text-align:center;\">\n  Certisured | Bangalore<br>\n  📧 hello@certisured.com | 📞 +91 96066 98866\n  </p>\n\n</div>",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        112,
+        608
+      ],
+      "id": "874c60b9-a2f2-49c5-8cf9-f62cf7eac387",
+      "name": "Send a message",
+      "webhookId": "6c94660d-e470-49e4-907e-daa423a94b83",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LVjcy21GShD8MSSL",
+          "name": "Gmail account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Registration Successful 🎉",
+        "completionMessage": "New student registration has been successfully processed.\n\nAll details have been recorded and the enrollment document has been generated and sent to the student.\n\n– Student Registration System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        320,
+        624
+      ],
+      "id": "87709598-4165-4a89-be79-7eebc4fafa94",
+      "name": "Form",
+      "webhookId": "a49a0b84-cbb2-4a81-b115-176d74283550"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        672
+      ],
+      "id": "193cf795-fef6-4d83-8bea-a6ad24bf0bc2",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4mpCoSK5bGM5TRlk",
+          "name": "Google Drive account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus",
+          "mode": "list",
+          "cachedResultName": "Students",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1440,
+        160
+      ],
+      "id": "215a19b7-e859-4e3c-a57a-4566d6efc2db",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus",
+          "mode": "list",
+          "cachedResultName": "Students",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KE7emoTc-_oaHqFiHzwB54-NzDAZiwZDEwVxJis9zus/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student_id",
+              "displayName": "student_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "degree",
+              "displayName": "degree",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "duration",
+              "displayName": "duration",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "start_date",
+              "displayName": "start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fee",
+              "displayName": "fee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fee_mode",
+              "displayName": "fee_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emi_months",
+              "displayName": "emi_months",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "file1",
+              "displayName": "file1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "file2",
+              "displayName": "file2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "photo1",
+              "displayName": "photo1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emi_per_month",
+              "displayName": "emi_per_month",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total_months",
+              "displayName": "total_months",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "installment_details",
+              "displayName": "installment_details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -880,
+        336
+      ],
+      "id": "9c8865e9-6fb0-43d6-a321-975c83686dcf",
+      "name": "Append row in sheet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Upload file2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1b5b7cb5-3424-4d52-9008-8a4613250e9f",
+  "meta": {
+    "instanceId": "294c687a15c1b7acaf5b0ea1b0e8d96dc044db70e110d62f0675ce62f4861e3e"
+  },
+  "id": "0xCwygrwXlAkXKRVSHfqf",
+  "tags": []
+}

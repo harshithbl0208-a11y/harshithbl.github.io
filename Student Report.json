@@ -1,0 +1,287 @@
+{
+  "name": "Student Report",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        112
+      ],
+      "id": "cf3149f3-6929-4956-b025-7284038ed256",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hqz9Rbi-KRJUG_uoP0OUfGj9PL5W-TVh6lvwYDViA0g",
+          "mode": "list",
+          "cachedResultName": "Students ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hqz9Rbi-KRJUG_uoP0OUfGj9PL5W-TVh6lvwYDViA0g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hqz9Rbi-KRJUG_uoP0OUfGj9PL5W-TVh6lvwYDViA0g/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        0
+      ],
+      "id": "31882995-e4b9-404e-90fa-4addf21887a1",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "B5iURYUJcXski5fC",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an academic mentor.\nBased on attendance and test score, generate a short professional feedback mentioning the proper details of attendance attendance and marks/grades and commenting on them in the report.\nTone should be encouraging and clear.\nso here are the details of the student\n{{ $json.Name }}\n{{ $json.Email }}\n{{ $json['Course '] }}\n{{ $json['Attendance '] }}\n{{ $json['Test score '] }}\n{{ $json['Remarks '] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        64
+      ],
+      "id": "68395ae1-ddbd-4a16-86f8-2a2b4acb7c63",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        384,
+        192
+      ],
+      "id": "d70deaa1-7393-4556-b67d-20a107f92a8d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rfjcQy4iXkjzR8MC",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": "=myDrive",
+        "folderId": "12d8ZZJPKzf-EYtJNq8YpkhNY67eWYtuz",
+        "title": "={{ $('Get row(s) in sheet').item.json.row_number }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "94b24ae4-4a85-4af3-9ec2-4b95799b0937",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ufG2MmsifEqQazsd",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        784,
+        80
+      ],
+      "id": "8e4075ed-fed4-4c9f-9004-25e54556e9d4",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ufG2MmsifEqQazsd",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        960,
+        0
+      ],
+      "id": "917b647a-67e0-420e-86b8-1b6742dd0093",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4M1TsiCltZ9rooXZ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "Report ",
+        "message": "=Hi  {{ $('Get row(s) in sheet').item.json.Email }} Please find your performance report attached as PDF\n{{ $json.documentId }}\nRegards,\nHarshith",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {},
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "715c06c5-8dda-4d43-989e-446e9b30375e",
+      "name": "Send a message",
+      "webhookId": "b39a0d20-45ee-4384-9a48-e0738d78f5bd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MHD4vFLgSPNeppwm",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7ac9518f-e450-4b3d-a8c3-3063fba7378d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "294c687a15c1b7acaf5b0ea1b0e8d96dc044db70e110d62f0675ce62f4861e3e"
+  },
+  "id": "xmOXDntpwKkayNCvSJ_JP",
+  "tags": []
+}

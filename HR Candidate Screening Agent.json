@@ -1,0 +1,543 @@
+{
+  "name": "HR Candidate Screening Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "folderId": "1WbuDCaLh48zgsKhTse0EDkz6O-N92679",
+        "title": "Resume "
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        -64
+      ],
+      "id": "349c7238-ef81-49a6-81a4-5c9ee8af1379",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "cQDkTw68lTy24ffG",
+          "name": "Google Docs account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "HR Candidate Screening Agent",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email ID"
+            },
+            {
+              "fieldLabel": "JD",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Resume ",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -640,
+        48
+      ],
+      "id": "dbfc97f7-3e95-4d8f-a735-d0c7944829a1",
+      "name": "On form submission",
+      "webhookId": "915326c7-d6f3-4c51-9910-7fee44a6f22a"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YUjMIkIRsCvsWRzHpbNFiRq6qGjxBlRJ-tqp5hYmkPk",
+          "mode": "list",
+          "cachedResultName": "HR Candidate Screening Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YUjMIkIRsCvsWRzHpbNFiRq6qGjxBlRJ-tqp5hYmkPk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YUjMIkIRsCvsWRzHpbNFiRq6qGjxBlRJ-tqp5hYmkPk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "candidate_name",
+              "displayName": "candidate_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_role",
+              "displayName": "current_role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience",
+              "displayName": "experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "match_percentage",
+              "displayName": "match_percentage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "eligibility_status",
+              "displayName": "eligibility_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_recommendation",
+              "displayName": "final_recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ats_score",
+              "displayName": "ats_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "shortlist_category",
+              "displayName": "shortlist_category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        -64
+      ],
+      "id": "9531e70d-7007-419b-b40c-b097473cb373",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i9LnoiehKoWH4suc",
+          "name": "Google Sheets account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        -64
+      ],
+      "id": "89e5d90e-1bf4-47e6-9e2b-117589dcbbf8",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UBtocACBg9U70f23",
+          "name": "Google Drive account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        -64
+      ],
+      "id": "8c4d8050-0d9d-4634-9333-74588a90385f",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "cQDkTw68lTy24ffG",
+          "name": "Google Docs account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json[\"Email ID\"] }}",
+        "subject": "hi",
+        "message": "=hi",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        -48
+      ],
+      "id": "6518a16c-c9ba-4486-a0bd-8e91b4d96983",
+      "name": "Send a message",
+      "webhookId": "8bdcf766-81b1-4744-aa0f-afff37550564",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WYqawz6SL7RyRL7Z",
+          "name": "Gmail account 11"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an advanced ATS (Applicant Tracking System), HR recruiter, and resume screening expert.\n\nYour task is to analyze the Resume JSON data and the Job Description (JD) JSON data provided as input and determine whether the candidate is eligible for the role.\n\nResume JSON:\n{{ $json.metadata['dc:creator'][0] }}\n{{ $json.text }}\n\nJob Description JSON:\n{{ $json.JD_text }}\n\nInstructions:\n\n1. Read and understand:\n- Resume JSON\n- Job Description JSON\n\n2. Extract and analyze:\n- Candidate name\n- Current role\n- Skills\n- Experience\n- Education\n- Certifications\n- Projects\n- Tools and technologies\n- Responsibilities\n- Keywords from JD\n\n3. Compare Resume JSON with JD JSON based on:\n- Required skills match\n- Preferred skills match\n- Years of experience\n- Relevant projects\n- Education requirements\n- Certifications\n- Domain/industry experience\n- Role responsibilities alignment\n- ATS keyword matching\n\n4. Determine:\n- ATS Match Score out of 100\n- Match Percentage\n- Eligibility Status:\n  - Eligible\n  - Partially Eligible\n  - Not Eligible\n\n5. Scoring Logic:\n- 90–100 = Excellent Match\n- 75–89 = Strong Match\n- 60–74 = Moderate Match\n- Below 60 = Weak Match\n\n6. Be strict and realistic like a real ATS system.\n7. Do not assume information not present in the JSON.\n8. If any field is missing, write \"Not Mentioned\".\n\nIMPORTANT OUTPUT RULES:\n\n- ALWAYS follow the exact format below.\n- NEVER skip headings.\n- NEVER generate standalone paragraphs outside the format.\n- NEVER add explanations outside the structure.\n- NEVER use markdown.\n- NEVER use bullet symbols like *, -, or #.\n- Return ONLY plain text.\n- Keep formatting consistent for every candidate.\n- Every heading must always exist even if data is unavailable.\n- If information is missing, write \"Not Mentioned\".\n- Short Final Summary must always be present.\n\nOUTPUT FORMAT:\n\nCandidate Name:\nCurrent Role:\nYears of Experience:\n\nATS Match Score:\nMatch Percentage:\nEligibility Status:\n\nSkills Matched:\nMissing Skills:\nRelevant Experience:\nEducation Match:\nCertifications Match:\nProjects Relevance:\nStrengths:\nWeaknesses/Gaps:\n\nFinal HR Recommendation:\n\nShort Final Summary:",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        -64
+      ],
+      "id": "b21cd859-09c1-4959-9ef8-c35ef6bf1e7d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        128
+      ],
+      "id": "c634275a-6d29-4869-8c98-41b5f72053d2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AExjSRiMAT23qv5r",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume_",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        96
+      ],
+      "id": "c2903a86-5847-4dc1-9a90-8b4f357586fa",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node\n// Clean ATS Extraction\n\nconst results = items.map(item => {\n\n    const text = item.json.output || item.json.text || \"\";\n\n    // Safe Extract Function\n    const extractValue = (regex) => {\n        const match = text.match(regex);\n        return match ? match[1].trim() : \"Not Mentioned\";\n    };\n\n    // Extract Fields\n    const candidate_name = extractValue(/Candidate Name:\\s*(.*)/i);\n\n    const current_role = extractValue(/Current Role:\\s*(.*)/i);\n\n    const experience = extractValue(/Years of Experience:\\s*(.*)/i);\n\n    const ats_score = parseInt(\n        extractValue(/ATS Match Score:\\s*(\\d+)/i)\n    ) || 0;\n\n    const match_percentage = extractValue(\n        /Match Percentage:\\s*(.*)/i\n    );\n\n    const eligibility_status = extractValue(\n        /Eligibility Status:\\s*(.*)/i\n    );\n\n    const final_recommendation = extractValue(\n        /Final HR Recommendation:\\s*(.*)/i\n    );\n\n    // Fixed Summary Extraction\n    const summaryMatch = text.match(\n        /Short Final Summary:\\s*([\\s\\S]*?)$/i\n    );\n\n    const summary = summaryMatch\n        ? summaryMatch[1].trim()\n        : \"Not Mentioned\";\n\n    // Normalize Score\n    let normalized_score = ats_score;\n\n    if (normalized_score > 100) {\n        normalized_score = 100;\n    }\n\n    // Category Logic\n    let shortlist_category = \"\";\n\n    if (normalized_score >= 90) {\n        shortlist_category = \"Excellent Match\";\n    }\n    else if (normalized_score >= 75) {\n        shortlist_category = \"Strong Match\";\n    }\n    else if (normalized_score >= 60) {\n        shortlist_category = \"Moderate Match\";\n    }\n    else {\n        shortlist_category = \"Weak Match\";\n    }\n\n    // Final Output\n    return {\n        json: {\n            candidate_name,\n            current_role,\n            experience,\n            ats_score: normalized_score,\n            match_percentage,\n            eligibility_status,\n            final_recommendation,\n            shortlist_category,\n            summary\n        }\n    };\n\n});\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        -64
+      ],
+      "id": "a58d2f68-dde5-4553-9b63-800dadb3ae3b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "354d42d2-54b5-44b9-98e4-336a5cf905a4",
+              "name": "JD_text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        -176
+      ],
+      "id": "42f021cc-e9fb-4701-a279-b691178f7eac",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        160,
+        -64
+      ],
+      "id": "f6f3ad15-5563-40fa-bc78-0ab6810d15d1",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "=JD",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -160
+      ],
+      "id": "86105da6-f45d-4bce-aaf1-b4d7d39bb997",
+      "name": "Extract from File1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d9b6f4ed-e2bd-4159-bac0-78c9ca6e60a1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "294c687a15c1b7acaf5b0ea1b0e8d96dc044db70e110d62f0675ce62f4861e3e"
+  },
+  "id": "ObN5hwvuqeOUocGNg0BZA",
+  "tags": []
+}

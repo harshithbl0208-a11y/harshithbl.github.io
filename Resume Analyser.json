@@ -1,0 +1,318 @@
+{
+  "name": "Resume Analyser",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert HR interviewer, resume analyst, and career coach.\n\nYour task is to analyze the uploaded resume PDF carefully and generate a professional HR interview preparation report.\n\nINSTRUCTIONS:\n\n1. Read and analyze the entire resume PDF thoroughly.\n\n2. Understand:\n   - Candidate skills\n   - Education\n   - Projects\n   - Experience\n   - Certifications\n   - Technical skills\n   - Achievements\n   - Career gaps\n   - Communication quality\n   - Resume formatting\n\n3. Generate HR-style interview questions based ONLY on the resume content.\n\n4. Questions should sound natural and professional, exactly like an HR interviewer would ask during a real interview.\n\n5. Include:\n   - General HR questions\n   - Technical questions based on skills/projects\n   - Situational questions\n   - Behavioral questions\n   - Strength/weakness related questions\n   - Project explanation questions\n   - Career goal questions\n\n6. Analyze the resume quality and provide:\n   - Resume strengths\n   - Resume weaknesses\n   - Missing information\n   - Areas for improvement\n   - Suggested additional skills/certifications/projects\n   - Formatting improvements\n   - ATS (Applicant Tracking System) friendliness\n\n7. Give a final resume rating out of 10 with explanation.\n\nOUTPUT FORMAT:\n\nResume Analysis Report\n\nCandidate Summary\n(Short summary of the candidate profile)\n\nResume Strengths\nPoint 1\nPoint 2\nPoint 3\n\nResume Weaknesses\nPoint 1\nPoint 2\nPoint 3\n\nMissing or Recommended Additions\nRecommended skill additions\nRecommended certifications\nRecommended project improvements\nRecommended formatting improvements\n\nATS Analysis\nATS Score\nATS Improvement Suggestions\n\nHR Interview Questions\n1.\n2.\n3.\n\n(Generate at least 20 detailed HR interview questions)\n\nTechnical Interview Questions\n1.\n2.\n3.\n\n(Generate at least 15 technical questions based on resume skills/projects)\n\nBehavioral & Situational Questions\n1.\n2.\n3.\n\n(Generate at least 10 behavioral questions)\n\nFinal Resume Review\nOverall Rating: X/10\nFinal Suggestions for Improvement\n\nIMPORTANT:\n- Do not generate generic questions unrelated to the resume.\n- Every question must be based on the candidate’s actual resume.\n- Keep the tone professional and realistic.\n- Make the report detailed and structured.\n- Output should be suitable for exporting directly into a Word document.\n- Do not use any markdown symbols such as #, ##, ###, **, *, or markdown bullet formatting.\n- The output must be fully professional, clean, and formal plain text.\n- Use proper headings and spacing without markdown syntax.\n- Keep the formatting ATS-friendly and corporate professional.\n- Do not include emojis or decorative symbols.\n {{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        0
+      ],
+      "id": "6891e418-3ac5-4e3f-add4-c7c8ed89ef1d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "88d09a90-7709-4526-9040-4a15463ab706",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9D1b3uYx2i0Af0gM",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Resume PDF Analyzer",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Resume PDF ",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "969fbc7b-014e-41bc-ad7f-03c583d07e74",
+      "name": "On form submission",
+      "webhookId": "77351a9a-cbad-4fc7-9bef-5126551eb8cc"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        800,
+        0
+      ],
+      "id": "67c41b6f-ba94-4535-a210-f046bf5c50a8",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hHpAepM3dWDo3B5B",
+          "name": "Google Drive account 10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=harshithbl0208@gmail.com",
+        "subject": "hi",
+        "message": "Hi this is your AI Agent ",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        0
+      ],
+      "id": "a77e1d7d-b092-4c13-bbfc-a55c52074f4c",
+      "name": "Send a message",
+      "webhookId": "48c1fa25-d93b-475b-92ca-17bb0506a8d5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JgacATCZTg8mbMub",
+          "name": "Gmail account 13"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1eLbsxIHH2P0IEXwysU6QYEVX-ORwxBSO",
+        "title": "Resume "
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2ef87c35-6002-4f9a-b297-26ed797c310b",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "lXFN9mobGZkzFllv",
+          "name": "Google Docs account 9"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "a4b677a2-dedd-41ad-880c-1a4ede565446",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "yqaG1SE5vUxQIl6X",
+          "name": "Google Docs account 10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume_PDF_",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "603c1807-04ee-4694-80e5-3f32d0c480ca",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Succesfully Done",
+        "completionMessage": "Thank You...you will receive an email regarding resume update",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "5a0d9278-d074-4d42-9889-6950d6a6e9e5",
+      "name": "Form",
+      "webhookId": "bf0fca28-3b67-4627-bdb4-3ecf9ab5cb89"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b08eef10-08ec-4185-8a1e-b43897c1fe80",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "294c687a15c1b7acaf5b0ea1b0e8d96dc044db70e110d62f0675ce62f4861e3e"
+  },
+  "id": "43M7hNeKfVoCtaLjeEBvH",
+  "tags": []
+}
