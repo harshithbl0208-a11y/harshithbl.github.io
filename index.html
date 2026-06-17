@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -26,8 +27,7 @@ section{
     padding:20px;
 }
 
-.card,
-.project-card{
+.card, .project-card{
     background:white;
     padding:20px;
     margin:15px 0;
@@ -43,31 +43,12 @@ ul{
     padding-left:20px;
 }
 
-.project-image{
-    width:100%;
-    max-height:300px;
-    object-fit:cover;
-    border-radius:8px;
-    margin-bottom:15px;
-}
-
-.project-card h3{
-    margin-top:0;
-    color:#1e3a8a;
-}
-
 footer{
     text-align:center;
     background:#1e3a8a;
     color:white;
     padding:15px;
     margin-top:20px;
-}
-
-@media(max-width:768px){
-    header{
-        padding:25px;
-    }
 }
 </style>
 
@@ -86,9 +67,9 @@ footer{
 <div class="card">
     <h2>About Me</h2>
     <p>
-        Motivated and detail-oriented BBA student specializing in Marketing with
-        hands-on experience in Digital Marketing, Workflow Automation, and N8N.
-        Passionate about AI-powered tools and business automation.
+    Motivated and detail-oriented BBA student specializing in Marketing with
+    hands-on experience in Digital Marketing, Workflow Automation, and N8N.
+    Passionate about AI-powered tools and business automation.
     </p>
 </div>
 
@@ -114,27 +95,30 @@ footer{
 <div class="card">
     <h2>Education</h2>
 
-    <p>
-        <strong>BBA (Pursuing)</strong><br>
-        Seshadripuram Institute of Commerce and Management
-    </p>
+```
+<p>
+<strong>BBA (Pursuing)</strong><br>
+Seshadripuram Institute of Commerce and Management
+</p>
 
-    <p>
-        <strong>PUC</strong><br>
-        Seshadripuram Composite PU College
-    </p>
+<p>
+<strong>PUC</strong><br>
+Seshadripuram Composite PU College
+</p>
 
-    <p>
-        <strong>SSLC</strong><br>
-        Sri Ramakunjeshwara English Medium High School
-    </p>
+<p>
+<strong>SSLC</strong><br>
+Sri Ramakunjeshwara English Medium High School
+</p>
+```
+
 </div>
 
 <div class="card">
     <h2>Experience</h2>
     <p>
-        <strong>Digital Marketing Intern</strong><br>
-        Explore Ventures
+    <strong>Digital Marketing Intern</strong><br>
+    Explore Ventures
     </p>
 </div>
 
@@ -148,59 +132,47 @@ footer{
     </ul>
 </div>
 
-<!-- N8N PROJECTS SECTION -->
-
 <div class="card">
     <h2>My N8N Projects</h2>
 
-    <div class="project-card">
-             alt="Student Enrollment Automation"
-             class="project-image">
+```
+<div class="project-card">
+    <h3>Student Enrollment Automation</h3>
+    <p>
+    Automated student onboarding system using N8N, Google Forms,
+    Google Sheets, Google Drive, Google Docs and Gmail.
+    Generates Student IDs, enrollment documents, uploads files,
+    calculates EMI plans and sends confirmation emails automatically.
+    </p>
+</div>
 
-        <h3>Student Enrollment Automation</h3>
-        <p>
-            Automated student onboarding system using N8N, Google Forms,
-            Google Sheets, Google Drive, Google Docs and Gmail.
-            Generates Student IDs, enrollment documents, uploads files,
-            calculates EMI plans and sends confirmation emails automatically.
-        </p>
-    </div>
+<div class="project-card">
+    <h3>HR Candidate Screening Agent</h3>
+    <p>
+    AI-powered ATS screening workflow that compares resumes with
+    job descriptions using Gemini AI. Generates ATS scores,
+    eligibility status, recommendations and candidate reports.
+    </p>
+</div>
 
-    <div class="project-card">
-             alt="HR Candidate Screening Agent"
-             class="project-image">
+<div class="project-card">
+    <h3>Resume Analyzer</h3>
+    <p>
+    AI Resume Analysis Agent built with N8N and Gemini AI.
+    Analyzes resumes, provides ATS feedback, strengths,
+    weaknesses, interview questions and improvement suggestions.
+    </p>
+</div>
 
-        <h3>HR Candidate Screening Agent</h3>
-        <p>
-            AI-powered ATS screening workflow that compares resumes with
-            job descriptions using Gemini AI. Generates ATS scores,
-            eligibility status, recommendations and candidate reports.
-        </p>
-    </div>
-
-    <div class="project-card">
-             alt="Resume Analyzer"
-             class="project-image">
-
-        <h3>Resume Analyzer</h3>
-        <p>
-            AI Resume Analysis Agent built with N8N and Gemini AI.
-            Analyzes resumes, provides ATS feedback, strengths,
-            weaknesses, interview questions and improvement suggestions.
-        </p>
-    </div>
-
-    <div class="project-card">
-             alt="Student Report Generator"
-             class="project-image">
-
-        <h3>Student Performance Report Generator</h3>
-        <p>
-            Automated student report generation system that reads data
-            from Google Sheets, creates personalized performance reports
-            using AI, converts them into PDFs and emails them to students.
-        </p>
-    </div>
+<div class="project-card">
+    <h3>Student Performance Report Generator</h3>
+    <p>
+    Automated student report generation system that reads data
+    from Google Sheets, creates personalized performance reports
+    using AI, converts them into PDFs and emails them to students.
+    </p>
+</div>
+```
 
 </div>
 
